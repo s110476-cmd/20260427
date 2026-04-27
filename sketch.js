@@ -4,6 +4,7 @@
 let video;
 let handPose;
 let hands = [];
+let bubbles = []; // 儲存水泡的陣列
 
 function preload() {
   // Initialize HandPose model with flipped video input
@@ -45,6 +46,14 @@ function draw() {
 
   image(video, x, y, displayW, displayH);
 
+  // 在畫布中間加上置中文字
+  fill(0); // 文字顏色設為黑色
+  noStroke();
+  textSize(32);
+  textAlign(CENTER, CENTER);
+  textFont('Arial');
+  text("414730340水OO", width / 2, height / 2);
+
   // Ensure at least one hand is detected
   if (hands.length > 0) {
     for (let hand of hands) {
@@ -82,15 +91,54 @@ function draw() {
           }
         }
 
+        // 定義指尖編號
+        let fingertipIndices = [4, 8, 12, 16, 20];
+
         // Draw circles at keypoints
-        fill(handColor);
-        noStroke();
-        for (let keypoint of hand.keypoints) {
+        for (let i = 0; i < hand.keypoints.length; i++) {
+          let keypoint = hand.keypoints[i];
           let px = map(keypoint.x, 0, video.width, x, x + displayW);
           let py = map(keypoint.y, 0, video.height, y, y + displayH);
+          
+          fill(handColor);
+          noStroke();
           circle(px, py, 16);
+
+          // 如果是編號 4, 8, 12, 16, 20 的指尖，產生水泡
+          if (fingertipIndices.includes(i)) {
+            // 稍微限制產生頻率，避免水泡過多
+            if (frameCount % 2 === 0) {
+              bubbles.push({
+                x: px,
+                y: py,
+                vx: random(-1, 1), // 左右漂移
+                vy: random(-1, -3), // 向上升的速度
+                size: random(5, 15),
+                alpha: 255, // 透明度，用來控制破掉的感覺
+                maxLife: random(50, 150) // 隨機壽命，決定在哪裡破掉
+              });
+            }
+          }
         }
       }
+    }
+  }
+
+  // 更新並繪製水泡
+  for (let i = bubbles.length - 1; i >= 0; i--) {
+    let b = bubbles[i];
+    b.x += b.vx;
+    b.y += b.vy;
+    b.maxLife--;
+
+    stroke(255, b.alpha);
+    strokeWeight(1);
+    fill(255, 255, 255, 50); // 半透明白色
+    circle(b.x, b.y, b.size);
+
+    // 當壽命結束或超出螢幕，移除水泡 (自動破掉)
+    if (b.maxLife <= 0 || b.y < 0) {
+      bubbles.splice(i, 1);
     }
   }
 }
