@@ -46,23 +46,45 @@ function draw() {
   if (hands.length > 0) {
     for (let hand of hands) {
       if (hand.confidence > 0.1) {
-        // Loop through keypoints and draw circles
-        for (let i = 0; i < hand.keypoints.length; i++) {
-          let keypoint = hand.keypoints[i];
+        // Color-code based on left or right hand
+        if (hand.handedness == "Left") {
+          fill(255, 0, 255);
+          stroke(255, 0, 255);
+        } else {
+          fill(255, 255, 0);
+          stroke(255, 255, 0);
+        }
 
-          // Color-code based on left or right hand
-          if (hand.handedness == "Left") {
-            fill(255, 0, 255);
-          } else {
-            fill(255, 255, 0);
+        // Define the segments to connect with lines
+        let segments = [
+          [0, 1, 2, 3, 4],    // Thumb & Wrist
+          [5, 6, 7, 8],       // Index Finger
+          [9, 10, 11, 12],    // Middle Finger
+          [13, 14, 15, 16],   // Ring Finger
+          [17, 18, 19, 20]    // Pinky
+        ];
+
+        // Draw lines for each segment
+        strokeWeight(4);
+        for (let segment of segments) {
+          for (let i = 0; i < segment.length - 1; i++) {
+            let pt1 = hand.keypoints[segment[i]];
+            let pt2 = hand.keypoints[segment[i + 1]];
+
+            let x1 = map(pt1.x, 0, video.width, x, x + displayW);
+            let y1 = map(pt1.y, 0, video.height, y, y + displayH);
+            let x2 = map(pt2.x, 0, video.width, x, x + displayW);
+            let y2 = map(pt2.y, 0, video.height, y, y + displayH);
+
+            line(x1, y1, x2, y2);
           }
+        }
 
-          noStroke();
-          
-          // Map keypoint coordinates to the centered and scaled video position
+        // Draw circles at keypoints
+        noStroke();
+        for (let keypoint of hand.keypoints) {
           let px = map(keypoint.x, 0, video.width, x, x + displayW);
           let py = map(keypoint.y, 0, video.height, y, y + displayH);
-          
           circle(px, py, 16);
         }
       }
