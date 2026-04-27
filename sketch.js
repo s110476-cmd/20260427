@@ -50,9 +50,9 @@ function draw() {
   fill(0); // 文字顏色設為黑色
   noStroke();
   textSize(32);
-  textAlign(CENTER, TOP);
+  textAlign(CENTER, BOTTOM);
   textFont('Arial');
-  text("414730340水OO", width / 2, 30);
+  text("414730340水OO", width / 2, y - 10);
 
   // Ensure at least one hand is detected
   if (hands.length > 0) {
