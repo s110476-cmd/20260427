@@ -34,6 +34,9 @@ function windowResized() {
 function draw() {
   background('#e7c6ff');
 
+  // 確保影片寬度已載入，避免 map 函數產生 NaN 導致無法繪圖
+  if (video.width === 0) return;
+
   // Calculate dimensions: 50% of screen
   let displayW = width * 0.5;
   let displayH = height * 0.5;
@@ -47,13 +50,12 @@ function draw() {
     for (let hand of hands) {
       if (hand.confidence > 0.1) {
         // Color-code based on left or right hand
-        if (hand.handedness == "Left") {
-          fill(255, 0, 255);
-          stroke(255, 0, 255);
-        } else {
-          fill(255, 255, 0);
-          stroke(255, 255, 0);
-        }
+        let handColor = (hand.handedness === "Left") ? color(255, 0, 255) : color(255, 255, 0);
+        
+        // 設定線條樣式
+        stroke(handColor);
+        strokeWeight(4);
+        noFill();
 
         // Define the segments to connect with lines
         // 0-4: 大拇指與手腕, 5-8: 食指, 9-12: 中指, 13-16: 無名指, 17-20: 小指
@@ -65,9 +67,6 @@ function draw() {
           [17, 18, 19, 20]
         ];
 
-        // Draw lines for each segment
-        strokeWeight(4);
-        noFill();
         for (let segment of segments) {
           for (let i = 0; i < segment.length - 1; i++) {
             let pt1 = hand.keypoints[segment[i]];
@@ -84,6 +83,7 @@ function draw() {
         }
 
         // Draw circles at keypoints
+        fill(handColor);
         noStroke();
         for (let keypoint of hand.keypoints) {
           let px = map(keypoint.x, 0, video.width, x, x + displayW);
