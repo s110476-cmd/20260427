@@ -46,13 +46,13 @@ function draw() {
 
   image(video, x, y, displayW, displayH);
 
-  // 在畫布中間加上置中文字
+  // 在畫布上方加上文字
   fill(0); // 文字顏色設為黑色
   noStroke();
   textSize(32);
-  textAlign(CENTER, CENTER);
+  textAlign(CENTER, TOP);
   textFont('Arial');
-  text("414730340水OO", width / 2, height / 2);
+  text("414730340水OO", width / 2, 30);
 
   // Ensure at least one hand is detected
   if (hands.length > 0) {
